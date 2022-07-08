@@ -1,0 +1,39 @@
+{
+  "name": "challenge-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nodemon ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Khatanna/challenge-node.git"
+  },
+  "author": "charlie",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Khatanna/challenge-node/issues"
+  },
+  "homepage": "https://github.com/Khatanna/challenge-node#readme",
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "dotenv": "^16.0.1",
+    "eslint": "^8.19.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.4",
+    "eslint-plugin-promise": "^6.0.0",
+    "mocha": "^10.0.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.19"
+  },
+  "dependencies": {
+    "express": "^4.18.1",
+    "http-status-codes": "^2.2.0",
+    "pg": "^8.7.3",
+    "sequelize": "^6.21.2"
+  }
+}
