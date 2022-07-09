@@ -60,7 +60,7 @@ exports.createCharacter = async (req, res, next) => {
   }
 };
 
-exports.getCharacterById = async (req, res, next) => {
+exports.getCharacterDetail = async (req, res, next) => {
   try {
     const { id } = req.params;
 

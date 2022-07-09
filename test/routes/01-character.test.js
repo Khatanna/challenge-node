@@ -33,7 +33,7 @@ describe('GET /characters', () => {
   });
 });
 
-describe('GET /characters/:id', () => {
+describe('GET /characters/detail/:id', () => {
   before(async () => {
     await connection.sync({ force: true });
     await Character.create({
@@ -46,24 +46,24 @@ describe('GET /characters/:id', () => {
     });
   });
   it('return status 200 - (OK)', async function () {
-    const { status } = await request(app).get('/characters/1');
+    const { status } = await request(app).get('/characters/detail/1');
 
     assert.equal(status, OK, 'status code is 200');
   });
   it('give error if "id" does not exist', async function () {
-    const { body } = await request(app).get('/characters/2');
+    const { body } = await request(app).get('/characters/detail/2');
 
     assert.deepEqual(body, {
       message: 'character not found'
     });
   });
   it('the characterof type object', async function () {
-    const { body: character } = await request(app).get('/characters/1');
+    const { body: character } = await request(app).get('/characters/detail/1');
 
     assert.isObject(character);
   });
   it('the characterequal the character in the database', async function () {
-    const { body: character } = await request(app).get('/characters/1');
+    const { body: character } = await request(app).get('/characters/detail/1');
     const dbCharacter = await Character.findByPk(1, {
       include: {
         model: Movie
