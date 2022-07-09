@@ -24,6 +24,23 @@ sequelize.models = Object.entries(sequelize.models).reduce(
   {}
 );
 
+const { Character, Genre, Movie } = sequelize.models;
+
+Character.belongsToMany(Movie, {
+  through: 'movie_has_character',
+  timestamps: false
+});
+Movie.belongsToMany(Character, {
+  through: 'movie_has_character',
+  timestamps: false
+});
+
+Genre.belongsToMany(Movie, {
+  through: 'movie_has_gen',
+  timestamps: false
+});
+Movie.hasMany(Genre);
+
 module.exports = {
   connection: sequelize,
   ...sequelize.models,
