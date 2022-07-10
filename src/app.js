@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const { router, paths } = require('./routes');
@@ -7,12 +8,33 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger');
 const swaggerJsdoc = require('swagger-jsdoc');
 const path = require('path');
+const multer = require('multer');
 
 const app = express();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads/'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
+    );
+  }
+});
 
 app.set('name', 'disney API');
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(
+  multer({
+    storage
+  }).single('image')
+);
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 swaggerDocument.apis = [`${path.join(__dirname, './routes/*.js')}`];
 swaggerDocument.definition.paths = paths.reduce((acc, path) => {
@@ -46,7 +68,9 @@ app.use((_, res, next) => {
 // Endware
 app.use(({ message }, _, res) => {
   console.log(`index error[review the 'server.js' file]: ${message}`);
-  res.status(INTERNAL_SERVER_ERROR).send({ message, endware: true });
+  res
+    .status(INTERNAL_SERVER_ERROR)
+    .send({ code: INTERNAL_SERVER_ERROR, message });
 });
 
 module.exports = app;

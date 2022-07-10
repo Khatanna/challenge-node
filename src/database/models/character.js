@@ -1,4 +1,9 @@
 const { DataTypes } = require('sequelize');
+const fs = require('fs');
+const path = require('path');
+
+//   fs.writeFileSync(path.join(__dirname, './image.png'), newCharacter.image);
+// })();
 
 module.exports = (sequelize) => {
   sequelize.define(
@@ -12,19 +17,25 @@ module.exports = (sequelize) => {
         onDelete: 'CASCADE'
       },
       image: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+
+        unique: true
       },
       name: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false
       },
       age: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        allowNull: false
       },
       weight: {
-        type: DataTypes.FLOAT
+        type: DataTypes.FLOAT,
+        allowNull: false
       },
       history: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
+        allowNull: false
       }
     },
     {

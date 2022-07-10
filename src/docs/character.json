@@ -1,1 +1,55 @@
-{}
+{
+  "get": {
+    "description": "Returns all Characters from database",
+    "summary": "get all existing characters from the database",
+    "operationId": "getAllCharacters",
+    "responses": {
+      "200": {
+        "description": "/characters [response]",
+        "content": {
+          "application/json": {
+            "example": {
+              "page": 1,
+              "next": "http//localhost:3001/characters?page=2&limit=10&offset=10",
+              "previous": null,
+              "count": 2,
+              "characters": [
+                {
+                  "image": "https://characters/image/harry%20potter",
+                  "name": "Harry Potter"
+                },
+                {
+                  "image": "https://characters/image/draco%20malfoy",
+                  "name": "Draco Malfoy"
+                }
+              ]
+            },
+            "schema": {
+              "description": "this routes return a array of characters",
+              "$ref": "#/components/schemas/ArrayOfCharacters"
+            }
+          },
+          "text/html": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "example": {
+              "code": 500,
+              "message": "Internal server error"
+            },
+            "schema": {
+              "$ref": "#/components/schemas/ErrorModel"
+            }
+          }
+        }
+      }
+    }
+  }
+}

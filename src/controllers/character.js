@@ -1,7 +1,6 @@
 const { OK, CREATED, NOT_FOUND, BAD_REQUEST } =
   require('http-status-codes').StatusCodes;
 const { Character, Movie } = require('../database/index');
-
 const API_URL = process.env.API_URL + '/characters';
 
 exports.getAllCharacters = async (req, res, next) => {
@@ -38,22 +37,23 @@ exports.getAllCharacters = async (req, res, next) => {
 
 exports.createCharacter = async (req, res, next) => {
   try {
-    const { image, name, age, weight, history } = req.body;
-
-    if (!image || !name || !age || !weight || !history) {
+    const { name, age, weight, history } = req.body;
+    if (!name || !age || !weight || !history) {
       res.status(BAD_REQUEST).send({
         message: 'the attributes is necessary for create a new character'
       });
     } else {
       const newCharacter = await Character.create({
-        image,
+        image: req.file
+          ? `${API_URL}/images/${req.file.path.split('\\').reverse()[0]}`
+          : null,
         name,
         age,
         weight,
         history
       });
 
-      res.status(CREATED).json(newCharacter);
+      res.status(CREATED).send(newCharacter);
     }
   } catch (error) {
     next(error);
@@ -161,4 +161,10 @@ exports.deleteCharacter = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+exports.getImageOfCharacter = (req, res, next) => {
+  const { id } = req.params;
+  console.log(id);
+  res.sendFile(path.join(__dirname, `../../uploads/${id}`));
 };

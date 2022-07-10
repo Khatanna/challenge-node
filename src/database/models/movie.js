@@ -20,6 +20,7 @@ module.exports = (sequelize) => {
       createDate: {
         type: DataTypes.DATE,
         allowNull: false,
+        field: 'create_date',
         validate: {
           isDate: true
         }

@@ -4,6 +4,8 @@ const { OK, CREATED, BAD_REQUEST, NOT_FOUND } =
   require('http-status-codes').StatusCodes;
 const app = require('../../src/app');
 const { Character, Movie, connection } = require('../../src/database');
+const path = require('path');
+const fs = require('fs');
 
 describe('GET /characters', () => {
   beforeEach(async () => {
@@ -81,7 +83,6 @@ describe('POST /characters', () => {
   beforeEach(async () => {
     await connection.sync({ force: true });
     newCharacter = {
-      image: 'https://image.com',
       name: 'Harry Potter',
       age: 23,
       weight: 70.5,
@@ -102,14 +103,6 @@ describe('POST /characters', () => {
       .send(newCharacter);
 
     assert.isObject(character);
-  });
-  it('return error if some attribute not exist and return message error', async function () {
-    const { status, body } = await request(app).post('/characters');
-
-    assert.equal(status, BAD_REQUEST);
-    assert.deepEqual(body, {
-      message: 'the attributes is necessary for create a new character'
-    });
   });
   it('create character correctly', async function () {
     const { body: character } = await request(app)
