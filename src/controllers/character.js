@@ -2,10 +2,13 @@ const { OK, CREATED, NOT_FOUND, BAD_REQUEST } =
   require('http-status-codes').StatusCodes;
 const { Character, Movie } = require('../database/index');
 const API_URL = process.env.API_URL + '/characters';
+const path = require('path');
 
 exports.getAllCharacters = async (req, res, next) => {
-  const { page = 1, offset = 10, limit = 10 } = req.query;
-
+  const { page = 1, offset = 10, limit = 10, name, age, movies } = req.query;
+  if (name || age || movies) {
+    return next();
+  }
   const nextPage = `${API_URL}?page=${
     +page + 1
   }&limit=${limit}&offset=${offset}`;
@@ -47,7 +50,10 @@ exports.createCharacter = async (req, res, next) => {
         image: req.file
           ? `${API_URL}/images/${req.file.path.split('\\').reverse()[0]}`
           : null,
-        name,
+        name: name
+          .split(' ')
+          .map((word) => word[0].toUpperCase() + word.slice(1))
+          .join(' '),
         age,
         weight,
         history
@@ -66,7 +72,12 @@ exports.getCharacterDetail = async (req, res, next) => {
 
     const character = await Character.findByPk(id, {
       include: {
-        model: Movie
+        as: 'associated_movies',
+        model: Movie,
+        attributes: ['id', 'title'],
+        through: {
+          attributes: []
+        }
       }
     });
 
@@ -164,7 +175,119 @@ exports.deleteCharacter = async (req, res, next) => {
 };
 
 exports.getImageOfCharacter = (req, res, next) => {
-  const { id } = req.params;
-  console.log(id);
-  res.sendFile(path.join(__dirname, `../../uploads/${id}`));
+  try {
+    const { id } = req.params;
+    console.log(id);
+    res.sendFile(path.join(__dirname, `../../uploads/${id}`));
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getCharacterByName = async (req, res, next) => {
+  try {
+    const { name, age, movies } = req.query;
+    if (age || movies) {
+      return next();
+    }
+    const character = await Character.findOne({
+      where: {
+        name: name
+          .split(' ')
+          .map((word) => word[0].toUpperCase() + word.slice(1))
+          .join(' ')
+      },
+      include: {
+        as: 'associated_movies',
+        model: Movie,
+        attributes: ['id', 'title'],
+        through: {
+          attributes: []
+        }
+      }
+    });
+    if (character) {
+      res.send(character);
+    } else {
+      res.send(NOT_FOUND).send({
+        message: 'character not found or no exist'
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllCharactersByAge = async (req, res, next) => {
+  const { age, movies, page = 1, limit = 10, offset = 10 } = req.query;
+
+  if (movies) {
+    return next();
+  }
+  const nextPage = `${API_URL}?page=${
+    +page + 1
+  }&limit=${limit}&offset=${offset}`;
+  const previousPage = `${API_URL}?page=${
+    +page - 1
+  }&limit=${limit}&offset=${offset}`;
+  try {
+    const { count, rows: characters } = await Character.findAndCountAll({
+      order: [['id', 'ASC']],
+      offset: (+page - 1) * +limit,
+      limit: +limit,
+      where: {
+        age
+      }
+    });
+    const next = page < Math.ceil(count / +limit) ? nextPage : null;
+    const previous = page > 1 ? previousPage : null;
+
+    res.status(OK).json({
+      page: +page,
+      next,
+      previous,
+      count,
+      characters
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllCharactersByMovieId = async (req, res, next) => {
+  try {
+    const { movies: movieId, page = 1, limit = 10, offset = 10 } = req.query;
+    const nextPage = `${API_URL}?page=${
+      +page + 1
+    }&limit=${limit}&offset=${offset}`;
+    const previousPage = `${API_URL}?page=${
+      +page - 1
+    }&limit=${limit}&offset=${offset}`;
+
+    const { count, rows: characters } = await Character.findAndCountAll({
+      order: [['id', 'ASC']],
+      offset: (+page - 1) * +limit,
+      limit: +limit,
+      include: {
+        as: 'associated_movies',
+        model: Movie,
+        attributes: [],
+        where: {
+          id: movieId
+        }
+      }
+    });
+    const next = page < Math.ceil(count / +limit) ? nextPage : null;
+    const previous = page > 1 ? previousPage : null;
+
+    res.status(OK).json({
+      page: +page,
+      next,
+      previous,
+      count,
+      characters
+    });
+  } catch (error) {
+    next(error);
+  }
 };

@@ -27,19 +27,29 @@ sequelize.models = Object.entries(sequelize.models).reduce(
 const { Character, Genre, Movie } = sequelize.models;
 
 Character.belongsToMany(Movie, {
-  through: 'movie_has_character',
-  timestamps: false
+  as: 'associated_movies',
+  through: 'movies_character',
+  timestamps: false,
+  foreignKey: 'character_id',
+  otherKey: 'movie_id'
 });
+
 Movie.belongsToMany(Character, {
-  through: 'movie_has_character',
-  timestamps: false
+  as: 'associated_characters',
+  through: 'movies_character',
+  timestamps: false,
+  foreignKey: 'movie_id',
+  otherKey: 'character_id'
 });
 
 Genre.belongsToMany(Movie, {
-  through: 'movie_has_gen',
+  through: 'movie_has_genre',
   timestamps: false
 });
-Movie.hasMany(Genre);
+Movie.belongsToMany(Genre, {
+  through: 'movie_has_genre',
+  timestamps: false
+});
 
 module.exports = {
   connection: sequelize,
