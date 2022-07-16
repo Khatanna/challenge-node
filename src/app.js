@@ -1,29 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
-const { router, paths } = require('./routes');
-const { StatusCodes } = require('http-status-codes');
-const { INTERNAL_SERVER_ERROR } = StatusCodes;
+const { router } = require('./routes');
+const { INTERNAL_SERVER_ERROR } = require('http-status-codes').StatusCodes;
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger');
 const swaggerJsdoc = require('swagger-jsdoc');
 const path = require('path');
 const multer = require('multer');
+const storage = require('./multer.config');
 
 const app = express();
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../uploads/'));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
-    );
-  }
-});
 
 app.set('name', 'disney API');
 app.use(express.json());
@@ -35,12 +22,6 @@ app.use(
 );
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-swaggerDocument.apis = [`${path.join(__dirname, './routes/*.js')}`];
-swaggerDocument.definition.paths = paths.reduce((acc, path) => {
-  acc[`/${path}`] = require(`./docs/${path.slice(0, -1)}.json`);
-  return acc;
-}, {});
 
 app.use(
   '/api-docs',

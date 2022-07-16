@@ -207,10 +207,10 @@ exports.getCharacterByName = async (req, res, next) => {
       }
     });
     if (character) {
-      res.send(character);
+      res.status(OK).send(character);
     } else {
-      res.send(NOT_FOUND).send({
-        message: 'character not found or no exist'
+      res.status(NOT_FOUND).send({
+        message: 'character not found'
       });
     }
   } catch (error) {
